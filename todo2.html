@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>To-Do List App</title>
+    <link rel="stylesheet" href="TODO.CSS">
+</head>
+<body>
+    <div class="container">
+        <h1>To-Do List</h1>
+        <input type="text" id="taskInput" placeholder="Add new task ...">
+        <button onclick="addTask()">Add Task</button> 
+        <ul id="taskList"></ul>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+           
+            function loadTasks() {
+                const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                const taskList = document.getElementById("tasksList");
+
+                taskList.innerHTML = "";
+                tasks.forEach(task => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `
+                        <span class="${task.completed ? 'complete' : ''}">${task.text}</span>
+                        <button class="delete-btn" onclick="deleteTask(${task.id})">Delete</button>
+                        <button onclick="toggleComplete(${task.id})">${task.completed ? 'Undo' : 'Complete'}</button>
+                    `;
+                    taskList.appendChild(li);
+                });
+            }
+
+            function addTask() {
+                const input = document.getElementById("taskInput");
+                const text = input.value.trim();
+                if (text !== "") {
+                    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                    const newTask = {
+                        id: Date.now(), // Use a unique identifier
+                        text: text,
+                        completed: false
+                    };
+                    tasks.push(newTask);
+                    localStorage.setItem("tasks", JSON.stringify(tasks));
+                    input.value = "";
+                    loadTasks(); // Call loadTasks to display the added task
+                }
+            }
+
+            function deleteTask(id) {
+                let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                tasks = tasks.filter(task => task.id !== id);
+                localStorage.setItem("tasks", JSON.stringify(tasks));
+                loadTasks();
+            }
+
+            function toggleComplete(id) {
+                let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                tasks = tasks.map(task => {
+                    if (task.id === id) {
+                        task.completed = !task.completed;
+                    }
+                    return task;
+                });
+                localStorage.setItem("tasks", JSON.stringify(tasks));
+                loadTasks();
+            }
+
+            loadTasks(); // Initial load when the page is loaded
+        });
+    </script>
+    <script src="TODO.JS"></script>
+</body>
+</html>
